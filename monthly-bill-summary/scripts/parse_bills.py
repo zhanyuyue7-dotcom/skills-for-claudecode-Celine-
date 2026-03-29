@@ -15,6 +15,11 @@ import csv
 import argparse
 from pathlib import Path
 from datetime import datetime
+try:
+    import openpyxl
+    _HAS_OPENPYXL = True
+except ImportError:
+    _HAS_OPENPYXL = False
 
 # ---------------------------------------------------------------------------
 # Categorization rules — (category, [keywords])

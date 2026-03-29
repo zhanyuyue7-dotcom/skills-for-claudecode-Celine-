@@ -19,7 +19,6 @@ import json
 import time
 import argparse
 import subprocess
-import tempfile
 import os
 from collections import defaultdict
 
@@ -41,27 +40,27 @@ def lark(args: list) -> dict:
         return {"raw": result.stdout.strip()}
 
 
+# CWD for lark-cli calls — @file paths must be relative to this
+_CWD = os.path.dirname(os.path.abspath(__file__))
+_TMP_JSON = "_tmp_payload.json"
+
+
 def lark_with_json(args: list, payload: dict) -> dict:
-    """Pass JSON payload via --json flag (use temp file on Windows to avoid encoding issues)."""
+    """Pass JSON payload via temp file to avoid Windows encoding issues with inline JSON."""
     json_str = json.dumps(payload, ensure_ascii=False)
-    # Try inline first
-    cmd = [LARK] + args + ["--json", json_str]
-    result = subprocess.run(cmd, capture_output=True, encoding="utf-8")
-    if result.returncode != 0:
-        # Fallback: write to temp file
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json",
-                                         encoding="utf-8", delete=False) as f:
-            f.write(json_str)
-            tmp = f.name
-        try:
-            cmd2 = [LARK] + args + ["--json", f"@{tmp}"]
-            result = subprocess.run(cmd2, capture_output=True, encoding="utf-8")
-            if result.returncode != 0:
-                print(f"LARK ERROR: {' '.join(str(a) for a in args)}", file=sys.stderr)
-                print(result.stderr[-2000:], file=sys.stderr)
-                sys.exit(1)
-        finally:
-            os.unlink(tmp)
+    tmp_path = os.path.join(_CWD, _TMP_JSON)
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(json_str)
+    try:
+        cmd = [LARK] + args + ["--json", f"@{_TMP_JSON}"]
+        result = subprocess.run(cmd, capture_output=True, encoding="utf-8", cwd=_CWD)
+        if result.returncode != 0:
+            print(f"LARK ERROR: {' '.join(str(a) for a in args)}", file=sys.stderr)
+            print(result.stderr[-2000:], file=sys.stderr)
+            sys.exit(1)
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
     try:
         return json.loads(result.stdout)
     except json.JSONDecodeError:
@@ -112,14 +111,14 @@ def create_base(name: str) -> str:
 # ---------------------------------------------------------------------------
 
 SUMMARY_FIELDS = json.dumps([
-    {"field_name": "分类名称",   "type": 1},   # text — primary key
-    {"field_name": "支出总额",   "type": 2},   # number
-    {"field_name": "收入总额",   "type": 2},
-    {"field_name": "净支出",     "type": 2},
-    {"field_name": "笔数",       "type": 2},
-    {"field_name": "平均每笔",   "type": 2},
-    {"field_name": "最大单笔",   "type": 2},
-    {"field_name": "来源渠道",   "type": 1},   # text: 微信/支付宝/混合
+    {"name": "分类名称",   "type": "text"},
+    {"name": "支出总额",   "type": "number"},
+    {"name": "收入总额",   "type": "number"},
+    {"name": "净支出",     "type": "number"},
+    {"name": "笔数",       "type": "number"},
+    {"name": "平均每笔",   "type": "number"},
+    {"name": "最大单笔",   "type": "number"},
+    {"name": "来源渠道",   "type": "text"},
 ], ensure_ascii=False)
 
 
@@ -143,22 +142,22 @@ def create_summary_table(base_token: str) -> str:
 
 def make_detail_fields(summary_table_id: str, base_token: str) -> str:
     fields = [
-        {"field_name": "交易时间",   "type": 5},   # datetime
-        {"field_name": "交易对方",   "type": 1},   # text
-        {"field_name": "商品说明",   "type": 1},
-        {"field_name": "金额",       "type": 2},   # number
-        {"field_name": "收支类型",   "type": 3,    # single select
-         "property": {"options": [{"name": "支出"}, {"name": "收入"}]}},
-        {"field_name": "关联分类",   "type": 18,   # 关联字段
+        {"name": "交易时间",   "type": "datetime"},
+        {"name": "交易对方",   "type": "text"},
+        {"name": "商品说明",   "type": "text"},
+        {"name": "金额",       "type": "number"},
+        {"name": "收支类型",   "type": "select",
+         "options": [{"name": "支出"}, {"name": "收入"}]},
+        {"name": "关联分类",   "type": "link",
          "property": {
              "link_table_id": summary_table_id,
              "multiple": False
          }},
-        {"field_name": "来源",       "type": 3,    # single select
-         "property": {"options": [{"name": "微信"}, {"name": "支付宝"}]}},
-        {"field_name": "交易状态",   "type": 1},
-        {"field_name": "支付方式",   "type": 1},
-        {"field_name": "备注",       "type": 1},
+        {"name": "来源",       "type": "select",
+         "options": [{"name": "微信"}, {"name": "支付宝"}]},
+        {"name": "交易状态",   "type": "text"},
+        {"name": "支付方式",   "type": "text"},
+        {"name": "备注",       "type": "text"},
     ]
     return json.dumps(fields, ensure_ascii=False)
 
@@ -225,7 +224,7 @@ def upload_summary(base_token: str, table_id: str, summary_rows: list) -> dict:
             ["base", "+record-upsert",
              "--base-token", base_token,
              "--table-id", table_id],
-            {"fields": row}
+            row
         )
         rec_id = get_token(resp, "record_id", "recordId")
         cat_to_record[row["分类名称"]] = rec_id
@@ -263,7 +262,7 @@ def upload_details(base_token: str, table_id: str, transactions: list,
                 ["base", "+record-upsert",
                  "--base-token", base_token,
                  "--table-id", table_id],
-                {"fields": fields}
+                fields
             )
             uploaded += 1
             time.sleep(SLEEP)

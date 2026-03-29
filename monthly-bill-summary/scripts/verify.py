@@ -37,7 +37,12 @@ def lark(args: list) -> dict:
 
 
 def fetch_all_records(base_token: str, table_id: str) -> list:
-    """Fetch all records using pagination."""
+    """Fetch all records using pagination.
+
+    lark-cli record-list returns:
+      {"data": {"data": [[v1,v2,...], ...], "fields": ["f1","f2",...], "record_id_list": [...]}}
+    We normalise each row into {"fields": {field_name: value}} for downstream use.
+    """
     all_records = []
     offset = 0
     while True:
@@ -47,9 +52,14 @@ def fetch_all_records(base_token: str, table_id: str) -> list:
                      "--table-id",   table_id,
                      "--offset",     str(offset)])
         data = resp.get("data", {})
-        records = data.get("items") or data.get("records") or []
-        all_records.extend(records)
-        if len(records) < 100:
+        field_names = data.get("fields", [])
+        rows        = data.get("data", [])
+        record_ids  = data.get("record_id_list", [])
+        for i, row in enumerate(rows):
+            fields = dict(zip(field_names, row)) if field_names else {}
+            rec_id = record_ids[i] if i < len(record_ids) else ""
+            all_records.append({"record_id": rec_id, "fields": fields})
+        if len(record_ids) < 100:
             break
         offset += 100
     return all_records
