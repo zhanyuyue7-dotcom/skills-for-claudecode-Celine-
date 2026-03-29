@@ -64,6 +64,24 @@ def categorize(counterparty: str, description: str) -> str:
     return "其他"
 
 
+def week_label(date_str: str) -> str:
+    """Return week label like '第1周(1-7日)' from an ISO or '2025-01-15 ...' date string."""
+    try:
+        day = int(date_str[8:10])
+        if day <= 7:
+            return "第1周(1-7日)"
+        elif day <= 14:
+            return "第2周(8-14日)"
+        elif day <= 21:
+            return "第3周(15-21日)"
+        elif day <= 28:
+            return "第4周(22-28日)"
+        else:
+            return "第5周(29日+)"
+    except Exception:
+        return "未知"
+
+
 def _clean_amount(raw: str) -> float:
     """Strip currency symbols and convert to float."""
     return float(raw.strip().lstrip("¥").lstrip("￥").replace(",", ""))
@@ -113,6 +131,7 @@ def parse_wechat(path: str) -> list:
             "tx_id":        row.get("交易单号", "").strip(),
             "source":       "微信",
             "category":     categorize(counterparty, description),
+            "week":         week_label(row["交易时间"].strip()),
         })
     return rows
 
@@ -162,6 +181,7 @@ def parse_alipay(path: str) -> list:
             "source":           "支付宝",
             "alipay_category":  alipay_category,
             "category":         categorize(counterparty, description),
+            "week":             week_label(row["交易时间"].strip()),
         })
     return rows
 

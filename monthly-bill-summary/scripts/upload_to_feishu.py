@@ -158,6 +158,7 @@ def make_detail_fields(summary_table_id: str, base_token: str) -> str:
         {"name": "交易状态",   "type": "text"},
         {"name": "支付方式",   "type": "text"},
         {"name": "备注",       "type": "text"},
+        {"name": "周次",       "type": "text"},
     ]
     return json.dumps(fields, ensure_ascii=False)
 
@@ -255,6 +256,7 @@ def upload_details(base_token: str, table_id: str, transactions: list,
                 "交易状态": t.get("status", ""),
                 "支付方式": t.get("payment_method", ""),
                 "备注":     t.get("remark", ""),
+                "周次":     t.get("week", "未知"),
             }
             if rec_id:
                 fields["关联分类"] = {"link_record_ids": [rec_id]}
@@ -268,6 +270,73 @@ def upload_details(base_token: str, table_id: str, transactions: list,
             time.sleep(SLEEP)
         print(f"  Progress: {uploaded}/{total}", flush=True)
     return uploaded
+
+
+# ---------------------------------------------------------------------------
+# Create dashboard with charts
+# ---------------------------------------------------------------------------
+
+def create_dashboard(base_token: str) -> str:
+    print("\n[Step 4] Creating dashboard...")
+    resp = lark(["base", "+dashboard-create",
+                 "--base-token", base_token,
+                 "--name", "仪表盘"])
+    dash_id = get_token(resp, "dashboard_id", "dashboardId")
+    if not dash_id:
+        # fallback: search nested
+        for v in resp.get("data", {}).values():
+            if isinstance(v, str) and v:
+                dash_id = v
+                break
+    if not dash_id:
+        print("WARNING: Could not get dashboard_id, skipping charts.", file=sys.stderr)
+        return ""
+    print(f"  dashboard_id: {dash_id}")
+    time.sleep(1)
+
+    blocks = [
+        {
+            "type": "column",
+            "name": "各分类支出对比",
+            "data_config": {
+                "table_name": "分类汇总",
+                "series": [{"field_name": "支出总额", "rollup": "SUM"}],
+                "group_by": [{"field_name": "分类名称"}],
+            },
+        },
+        {
+            "type": "pie",
+            "name": "支出分类占比",
+            "data_config": {
+                "table_name": "分类汇总",
+                "series": [{"field_name": "支出总额", "rollup": "SUM"}],
+                "group_by": [{"field_name": "分类名称"}],
+            },
+        },
+        {
+            "type": "column",
+            "name": "按周消费趋势",
+            "data_config": {
+                "table_name": "交易明细",
+                "series": [{"field_name": "金额", "rollup": "SUM"}],
+                "group_by": [{"field_name": "周次"}],
+            },
+        },
+    ]
+
+    for block in blocks:
+        data_config_str = json.dumps(block["data_config"], ensure_ascii=False)
+        resp = lark(["base", "+dashboard-block-create",
+                     "--base-token", base_token,
+                     "--dashboard-id", dash_id,
+                     "--type", block["type"],
+                     "--name", block["name"],
+                     "--data-config", data_config_str])
+        block_id = get_token(resp, "block_id", "blockId")
+        print(f"  Block '{block['name']}': {block_id or 'created'}")
+        time.sleep(1)
+
+    return dash_id
 
 
 # ---------------------------------------------------------------------------
@@ -329,6 +398,11 @@ def main():
     print("\n[Step 3] Uploading transaction details...")
     total_uploaded = upload_details(base_token, detail_table_id, transactions, cat_to_record)
 
+    # Step 4: create dashboard (only for new bases)
+    dashboard_id = ""
+    if not args.base_token:
+        dashboard_id = create_dashboard(base_token)
+
     # Save state for verify.py
     state = {
         "base_token":        base_token,
@@ -338,6 +412,7 @@ def main():
         "month":             month,
         "category_count":    len(summary_rows),
         "transaction_count": total_uploaded,
+        "dashboard_id":      dashboard_id,
     }
     with open("upload_state.json", "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
