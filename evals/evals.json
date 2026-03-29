@@ -1,0 +1,55 @@
+{
+  "skill_name": "monthly-bill-summary",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我分析这个月的微信账单，文件是 wechat_march.csv",
+      "expected_output": "运行 parse_bills.py 解析 CSV，输出 parsed.json，然后运行 upload_to_feishu.py 创建飞书多维表格，最后运行 verify.py 验收",
+      "files": [],
+      "expectations": [
+        "调用 parse_bills.py wechat 模式解析 CSV",
+        "解析输出包含交易条数和支出总额",
+        "调用 upload_to_feishu.py 创建飞书 Base",
+        "创建了两张表：分类汇总 和 交易明细",
+        "交易明细表有 关联分类 字段指向分类汇总",
+        "最后调用 verify.py 进行验收，显示 ALL CHECKS PASSED"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "把微信和支付宝账单合并做一个2025年3月的账单总结",
+      "expected_output": "使用 auto 模式合并两个 CSV，上传时指定 --year 2025 --month 3",
+      "files": [],
+      "expectations": [
+        "调用 parse_bills.py auto 模式合并两个文件",
+        "upload_to_feishu.py 使用 --year 2025 --month 3 参数",
+        "Base 名称为 '2025年03月 账单汇总'",
+        "分类汇总表记录来源字段同时包含 微信 和 支付宝"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "账单里的分类不准，'超级猩猩' 应该归到健身而不是其他",
+      "expected_output": "指导用户编辑 parse_bills.py 的 CATEGORY_RULES，添加健身运动分类规则，然后重新运行解析和上传",
+      "files": [],
+      "expectations": [
+        "找到 parse_bills.py 中的 CATEGORY_RULES 列表",
+        "在列表前部添加 ('健身运动', ['超级猩猩', ...]) 规则",
+        "重新运行 parse_bills.py 生成新的 parsed.json",
+        "重新运行 upload_to_feishu.py（可用 --base-token 追加或新建）"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "验收失败，显示 Transaction count: remote=180, local=185，怎么办？",
+      "expected_output": "诊断原因：可能是上传中断，建议用 --base-token 重新追加上传，或检查是否有重复记录",
+      "files": [],
+      "expectations": [
+        "识别为上传中断导致记录数不一致",
+        "建议先检查 upload_state.json 获取 base_token",
+        "建议用 lark-cli base +record-list 确认已上传的条数",
+        "给出 --base-token 参数重新运行 upload_to_feishu.py 的命令"
+      ]
+    }
+  ]
+}
