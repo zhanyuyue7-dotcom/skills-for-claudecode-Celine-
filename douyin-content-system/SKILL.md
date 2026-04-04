@@ -69,7 +69,27 @@ Two content formats are available:
    - Project update → Ending B (未完成的故事)
    - Opinion/reflection → Ending D (自我对话) + 评论区提问
    - Monthly review → Ending D (自我对话) + C (金句定格)
-5. Output format:
+6. Generate **three distinct outputs** for publishing — title, caption, and self-comment each serve a different purpose:
+
+   **标题 (Title)** — for humans + algorithm
+   - 15-20 characters, max 55
+   - Must contain 1-2 core keywords (for algorithm tagging)
+   - Must create curiosity or information gap (for human click-through)
+   - Avoid: extreme words (最/第一/国家级), clickbait, abbreviations the algorithm can't parse
+
+   **文案 (Caption/Description)** — primarily for search SEO
+   - Plant core keyword in the first 30 characters (search ranking weight: 40%)
+   - Add 3-5 topic hashtags (#话题) mixing: 1 broad tag (>1B views), 2 mid-range tags (10M-1B), 1-2 niche tags (<10M)
+   - Total caption length: 50-150 characters. Natural language, not keyword stuffing (2026 algorithm penalizes stuffing)
+   - Use concrete entity nouns (tool names, company names, technical terms) — algorithm identifies these for categorization
+   - Can include a soft hook or one-line summary, but the primary job is discoverability
+
+   **自评论 (Self-Comment)** — for engagement/interaction
+   - Posted immediately after publishing
+   - Purpose: lower the commenting threshold for viewers, boost early interaction metrics
+   - Templates in distribution-checklist.md
+
+7. Output format:
 
 ```
 ## 口播稿
@@ -77,7 +97,7 @@ Two content formats are available:
 **选题评分**: [X/9] ([我想讲X] [有人搜X] [能引发讨论X])
 **钩子类型**: [A/B/C/D/E]
 **结尾类型**: [A/B/C/D]
-**预估时长**: [X秒]
+**预估时长**: [X分钟]
 **评论触发器**: [具体描述埋了什么触发器]
 
 ---
@@ -86,9 +106,11 @@ Two content formats are available:
 
 ---
 
-**标题建议**: [3个备选标题]
+**标题**: [15-20字，含核心关键词]
+**备选标题**: [2个备选]
+**文案**: [50-150字，前30字含核心关键词，含话题标签]
 **发布时段**: [推荐时间]
-**自评论建议**: [发布后立刻发的第一条评论内容]
+**自评论**: [发布后立刻发的第一条评论内容]
 ```
 
 #### For 图文
@@ -111,13 +133,14 @@ Two content formats are available:
 **Slide 1**: [文字内容]
 **Slide 2**: [文字内容]
 ...
-**文案**: [配文，包含评论引导]
 
 ---
 
-**标题建议**: [3个备选]
+**标题**: [15-20字，含核心关键词]
+**备选标题**: [2个备选]
+**文案**: [50-150字，前30字含核心关键词，含话题标签]
 **发布时段**: [推荐时间]
-**自评论建议**: [发布后立刻发的第一条评论内容]
+**自评论**: [发布后立刻发的第一条评论内容]
 ```
 
 ### Phase 4: Distribution Check
