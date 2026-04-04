@@ -36,9 +36,10 @@ To boost "能引发讨论", reframe the topic as a debate, comparison, or person
 Two content formats are available:
 
 **口播稿 (Oral Delivery Script)**
-- Duration: 60-120 seconds
+- Duration: 5-10 minutes (approx 1200-2400 characters)
 - Use when: sharing opinions, reacting to news, project progress with storytelling
-- Structure: hook (3s) → body (50-100s) → ending (10-15s)
+- Structure: opening (30-60s) → story/argument development (3-7min) → ending (30-60s)
+- **Tone principle**: Write like Karpathy explaining + Chai Jing narrating. Unhurried, thoughtful, with breathing room. The pacing of someone who genuinely understands, not someone selling insight. Allow stories to unfold, digressions that serve the point, and moments of silence/reflection. NEVER write in a compressed, marketing-pitch style.
 
 **图文 (Image-Text Post)**
 - Format: 3-6 images + music + short copy
@@ -50,16 +51,18 @@ Two content formats are available:
 #### For 口播稿
 
 1. Load [persona.md](references/persona.md) — apply persona voice and avoid all items on the prohibition list
-2. Load [hooks.md](references/hooks.md) — select one of the 5 opening hooks based on content type:
-   - News/tool review → Hook B (事件驱动)
-   - Opinion piece → Hook A (反直觉) or Hook E (提问式)
-   - Project update → Hook C (过程展示)
-   - Targeting specific audience → Hook D (数字筛人)
+2. Load [hooks.md](references/hooks.md) — select an opening approach. For 5-10min content, the hook does NOT need to be a 3-second kill shot. A good opening can be:
+   - A quiet observation that draws you in (Chai Jing style)
+   - A question worth sitting with (Lex Fridman style)
+   - A personal moment that sets the stage (Karpathy style)
+   - A counterintuitive claim, stated calmly — not shouted (Levelsio style)
+   The hooks in hooks.md are templates — adapt them to a slower, more conversational delivery.
 3. Write the body — follow these rules:
-   - One core message only (one takeaway the audience walks away with)
-   - Use specific numbers, tool names, and concrete examples — never vague
-   - Include at least one personal experience ("我试了一下..." / "我踩了一个坑...")
-   - For style reference, consult [style-analysis.md](references/style-analysis.md)
+   - One core message, but developed through **layers** — personal story → broader insight → philosophical reflection
+   - Allow the narrative to breathe: use transitions, pauses, and rhetorical questions between sections
+   - Include real personal experiences with **specific details** (dates, numbers, names, feelings at the time)
+   - Avoid compressing every sentence into a punchline — mix dense insight with relaxed storytelling
+   - For style reference, consult [style-analysis.md](references/style-analysis.md), especially Karpathy (structured depth) and Chai Jing (narrative humanity)
 4. **Authenticity check** — before writing, verify the user has real experience to support the topic. Ask: "你有什么真实经历可以放进去？" Content without personal evidence is generic content — reject it or request the user provide a real story.
 5. Select ending template(s) from hooks.md — **endings can be combined** (e.g., D+经历征集, A+C). Common effective combos:
    - Tutorial/tool content → Ending A (回归人性) or C (金句定格)
@@ -123,7 +126,7 @@ Before delivering the final output, run through every item in [distribution-chec
 
 Key gates (content MUST NOT be delivered if any fail):
 
-1. **前3秒钩子** — first sentence must be completable in 3 seconds and contain information gap
+1. **开头30-60秒** — opening must establish credibility and curiosity within the first minute, in an unhurried tone
 2. **评论触发器** — at least one comment trigger mechanism must be embedded
 3. **社交货币** — forwarding this content must make the sharer look smart/informed/tasteful
 4. **结尾记忆点** — last sentence must be quotable or thought-provoking
