@@ -60,10 +60,12 @@ Two content formats are available:
    - Use specific numbers, tool names, and concrete examples — never vague
    - Include at least one personal experience ("我试了一下..." / "我踩了一个坑...")
    - For style reference, consult [style-analysis.md](references/style-analysis.md)
-4. Select one of the 4 ending templates from hooks.md:
+4. **Authenticity check** — before writing, verify the user has real experience to support the topic. Ask: "你有什么真实经历可以放进去？" Content without personal evidence is generic content — reject it or request the user provide a real story.
+5. Select ending template(s) from hooks.md — **endings can be combined** (e.g., D+经历征集, A+C). Common effective combos:
    - Tutorial/tool content → Ending A (回归人性) or C (金句定格)
    - Project update → Ending B (未完成的故事)
-   - Opinion/reflection → Ending D (自我对话)
+   - Opinion/reflection → Ending D (自我对话) + 评论区提问
+   - Monthly review → Ending D (自我对话) + C (金句定格)
 5. Output format:
 
 ```
@@ -83,6 +85,7 @@ Two content formats are available:
 
 **标题建议**: [3个备选标题]
 **发布时段**: [推荐时间]
+**自评论建议**: [发布后立刻发的第一条评论内容]
 ```
 
 #### For 图文
@@ -111,6 +114,7 @@ Two content formats are available:
 
 **标题建议**: [3个备选]
 **发布时段**: [推荐时间]
+**自评论建议**: [发布后立刻发的第一条评论内容]
 ```
 
 ### Phase 4: Distribution Check
